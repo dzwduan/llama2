@@ -1,0 +1,37 @@
+CompileFlags:
+  Add: 
+    - -Wall
+    - -Wextra
+    - -std=c11
+  Remove:
+    - -fsanitize=address  # 这可能会影响clangd的分析
+
+Diagnostics:
+  ClangTidy:
+    Add: 
+      - performance-*
+      - bugprone-*
+      - readability-*
+    Remove:
+      - readability-magic-numbers
+  UnusedIncludes: Strict
+
+Index:
+  Background: Build
+
+InlayHints:
+  Enabled: Yes
+  ParameterNames: Yes
+  DeducedTypes: Yes
+
+Hover:
+  ShowAKA: Yes
+
+Format:
+  BasedOnStyle: LLVM
+  IndentWidth: 4
+  TabWidth: 4
+  UseTab: Never
+  ColumnLimit: 100
+  AlignAfterOpenBracket: Align
+  AllowShortFunctionsOnASingleLine: Empty
