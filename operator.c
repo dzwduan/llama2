@@ -2,8 +2,7 @@
 #include "types.h"
 #include <math.h>
 #include <stdlib.h>
-
-extern int GS; // group size global for quantization of the weights
+#include "config.h"
 
 
 // 核心是gemv , gemv优化可以设计TMA，使用异步内存拷贝实现同时计算和数据加载，从而隐藏数据延迟

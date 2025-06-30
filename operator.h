@@ -3,7 +3,6 @@
 
 #include "types.h"
 
-void matmul(float* xout, QuantizedTensor *x, QuantizedTensor *w, int n, int d);
 
 void rmsnorm(float* o, float* x, float* weight, int size) ;
 

@@ -1,10 +1,10 @@
 #include <math.h>
 #include "quant.h"
+#include "config.h"
 
-extern int GS; // group size global for quantization of the weights
 
 // 按分组✖️量化因子
-void dequantize(QuantizedTensor *qx, float *x, int n) {
+void int8_dequantize(QuantizedTensor *qx, float *x, int n) {
   for (int i = 0; i < n; i++) {
     x[i] = qx->q[i] * qx->s[i / GS]; // 量化值乘以对应的缩放因子, i/GS是因为
                                      // 缩放因子是按组存储的
@@ -12,7 +12,7 @@ void dequantize(QuantizedTensor *qx, float *x, int n) {
 }
 
 // 存在的问题，n不是group_size的整数倍时，最后一组元素会被忽略，所以得香山取整，不够的补零
-void quantize(QuantizedTensor *qx, float *x, int n) {
+void int8_quantize(QuantizedTensor *qx, float *x, int n) {
   int num_groups = (n + GS - 1) / GS; // 向上取整
   float Q_MAX = 127.0f;               // 量化的最大值
 

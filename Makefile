@@ -1,14 +1,14 @@
 # Compiler settings
 CC = gcc
-CFLAGS_COMMON = -Wall -Wextra
-CFLAGS_RELEASE = -std=c11 $(CFLAGS_COMMON) -O3
-CFLAGS_DEBUG = -std=c11 $(CFLAGS_COMMON) -g -DDEBUG
-CFLAGS_MEMCHECK = -std=c11 $(CFLAGS_COMMON) -g -DDEBUG -fsanitize=address -fno-omit-frame-pointer
+CFLAGS_COMMON = -Wall -Wextra -lm
+CFLAGS_RELEASE = $(CFLAGS_COMMON) -O3
+CFLAGS_DEBUG = $(CFLAGS_COMMON) -g -DDEBUG
+CFLAGS_MEMCHECK = $(CFLAGS_COMMON) -g -DDEBUG -fsanitize=address -fno-omit-frame-pointer
 
 # Directories
 SRCDIR = .
 OBJDIR = obj
-BINDIR = ..
+BINDIR = .
 OBJDIR_DEBUG = $(OBJDIR)/debug
 OBJDIR_RELEASE = $(OBJDIR)/release
 OBJDIR_MEMCHECK = $(OBJDIR)/memcheck

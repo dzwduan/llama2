@@ -9,9 +9,8 @@
 #include "types.h"
 #include "transformer.h"
 #include "operator.h"
+#include "config.h"
 
-
-extern int GS;
 
 // 预先分配 RunState 的内存空间
 void malloc_run_state(RunState *s, Config *p) {

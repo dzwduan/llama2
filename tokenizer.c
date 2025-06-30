@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 #include "tokenizer.h"
 
 
@@ -149,7 +150,7 @@ void encode(Tokenizer *t, char *text, int8_t bos, int8_t eos, int *tokens,
       tokens[(*n_tokens)++] = id;
     } else {
       // 如果未找到，使用字符的 UTF-8 编码值加 3 作为 token ID
-      for (int i = 0; i < str_len; i++) {
+      for (size_t i = 0; i < str_len; i++) {
         tokens[(*n_tokens)++] = (unsigned char)str_buffer[i] + 3;
       }
     }

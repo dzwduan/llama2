@@ -3,6 +3,7 @@
 
 #include "sampler.h"
 #include "types.h"
+#include <unistd.h>
 
 // 预先分配 RunState 的内存空间
 void malloc_run_state(RunState *s, Config *p);
