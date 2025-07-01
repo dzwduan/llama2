@@ -11,9 +11,6 @@ int main(int argc, char *argv[]) {
 
   parse_args(argc, argv, &g_config);
 
-  Tokenizer tokenizer;
-  Transformer transformer;
-  Sampler sampler;
 
   const char *checkpoint_path = g_config.checkpoint_path;
   const char *tokenizer_path = g_config.tokenizer_path;
@@ -25,10 +22,18 @@ int main(int argc, char *argv[]) {
   float topp = g_config.topp;
   unsigned long long rng_seed = g_config.rng_seed;
 
-  build_tokenizer(&tokenizer, tokenizer_path, transformer.config.vocab_size);
-  build_transformer(&transformer, checkpoint_path);
-  build_sampler(&sampler, transformer.config.vocab_size, temperature, topp, rng_seed);
+    // build the Transformer via the model .bin file
+    Transformer transformer;
+    build_transformer(&transformer, checkpoint_path);
+    if (steps == 0 || steps > transformer.config.seq_len) steps = transformer.config.seq_len; // override to ~max length
 
+    // build the Tokenizer via the tokenizer .bin file
+    Tokenizer tokenizer;
+    build_tokenizer(&tokenizer, tokenizer_path, transformer.config.vocab_size);
+
+    // build the Sampler
+    Sampler sampler;
+    build_sampler(&sampler, transformer.config.vocab_size, temperature, topp, rng_seed);
   // run!
   if (strcmp(mode, "generate") == 0) {
     generate(&transformer, &tokenizer, &sampler, prompt, steps);

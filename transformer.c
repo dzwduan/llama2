@@ -226,9 +226,10 @@ void build_transformer(Transformer *t, const char *checkpoint_path) {
 void free_weight(TransformerWeights *w) {
     if (!w) return;
     free(w->q_tokens);
-    free(w->rms_att_weight);
-    free(w->rms_ffn_weight);
-    free(w->rms_final_weight);
+    // free_transformer 里面释放了最初使用指针操作的地址空间，无需重复释放
+    // free(w->rms_att_weight);
+    // free(w->rms_ffn_weight);
+    // free(w->rms_final_weight);
     free(w->wq);
     free(w->wk);
     free(w->wv);

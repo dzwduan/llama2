@@ -1,5 +1,6 @@
 #include "utils.h"
 #include "ctype.h"
+#include <sys/time.h>
 
 
 void error_usage() {
@@ -60,7 +61,7 @@ void safe_printf(char *piece) {
 }
 
 
-inline unsigned int random_u32(unsigned long long *state) {
+unsigned int random_u32(unsigned long long *state) {
     // xorshift rng: https://en.wikipedia.org/wiki/Xorshift#xorshift.2A
     *state ^= *state >> 12;
     *state ^= *state << 25;
@@ -69,11 +70,11 @@ inline unsigned int random_u32(unsigned long long *state) {
 }
 
 
-inline float random_f32(unsigned long long *state) { // random float32 in [0,1)
+float random_f32(unsigned long long *state) { // random float32 in [0,1)
     return (random_u32(state) >> 8) / 16777216.0f;
 }
 
-inline long time_in_ms() {
+long time_in_ms() {
     // return time in milliseconds, for benchmarking the model speed
     struct timespec time;
     clock_gettime(CLOCK_REALTIME, &time);
@@ -137,14 +138,19 @@ void generate(Transformer *transformer, Tokenizer *tokenizer, Sampler *sampler, 
         safe_printf(piece); // same as printf("%s", piece), but skips "unsafe" bytes
         fflush(stdout);
         // 现在生成的输出，会作为下一个输入
-        // TODO: 改 forward batch 支持 gemm prefill，需要重构这里
+        // TODO: 改 forward batch 支持 gemm prefill，需要重构这里generate
+        if (start == 0) {
+            start = time_in_ms(); // 记录开始时间
+        }
         token = next;
     }
 
     printf("\n");
+
     if (pos > 1) {
         long end = time_in_ms();
         fprintf(stderr, "achieved tok/s: %f\n", (pos-1) / (double)(end-start)*1000);
     }
+
     free(prompt_tokens);
 }

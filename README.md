@@ -12,4 +12,6 @@
 
 ```bash
 python3 export.py tinyllama-15M-V2.bin --version 2   --hf  /nfs/home/xiaoxiao/models/hf_models/tinyllama-15M
+make clean && make
+./run tinyllama-15M-V2.bin -n 100
 ```
