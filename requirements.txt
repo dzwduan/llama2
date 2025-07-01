@@ -1,0 +1,7 @@
+numpy
+pytest
+Requests
+sentencepiece
+torch
+tqdm
+wandb

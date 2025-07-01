@@ -7,3 +7,5 @@
 3. 添加awq量化支持并解耦当前的量化实现
 4. BF16支持
 
+
+ python3 export.py tinyllama-15M-V2.bin --version 2   --hf  /nfs/home/xiaoxiao/models/hf_models/tinyllama-15M

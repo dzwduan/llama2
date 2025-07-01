@@ -18,7 +18,7 @@ long time_in_ms() ;
 
 
 
-void generate(Transformer *transformer, Tokenizer *tokenizer, Sampler *sampler, char *prompt, int steps) ;
+void generate(Transformer *transformer, Tokenizer *tokenizer, Sampler *sampler, const char *prompt, int steps) ;
 
 
 void read_stdin(const char* guide, char* buffer, size_t bufsize) ;
@@ -29,7 +29,7 @@ void read_stdin(const char* guide, char* buffer, size_t bufsize) ;
 // is not safely implemented, it's more a proof of concept atm.
 
 void chat(Transformer *transformer, Tokenizer *tokenizer, Sampler *sampler,
-          char *cli_user_prompt, char *cli_system_prompt, int steps);
+          const char *cli_user_prompt, const char *cli_system_prompt, int steps);
 
 
 void error_usage() ;
