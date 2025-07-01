@@ -1,11 +1,9 @@
 
+#include "tokenizer.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#include "tokenizer.h"
-
-
 
 void build_tokenizer(Tokenizer *t, const char *tokenizer_path, int vocab_size) {
   // 给vocab 和 scores 分配内存
@@ -92,7 +90,7 @@ int str_lookup(char *str, TokenIndex *sorted_vocab, int vocab_size) {
 // encode the string text (input) into an upper-bound preallocated tokens[]
 // array bos != 0 means prepend the BOS token (=1), eos != 0 means append the
 // EOS token (=2)
-void encode(Tokenizer *t, char *text, int8_t bos, int8_t eos, int *tokens,
+void encode(Tokenizer *t, const char *text, int8_t bos, int8_t eos, int *tokens,
             int *n_tokens) {
   if (text == NULL) {
     fprintf(stderr, "cannot encode NULL text\n");
@@ -101,7 +99,7 @@ void encode(Tokenizer *t, char *text, int8_t bos, int8_t eos, int *tokens,
 
   // 惰性排序
   if (t->sorted_vocab == NULL) {
-    t->sorted_vocab = (TokenIndex *)malloc(t->vocab_size * sizeof(TokenIndex));
+    t->sorted_vocab = malloc(t->vocab_size * sizeof(TokenIndex));
     for (int i = 0; i < t->vocab_size; i++) {
       // vocab[i]是在build_tokenizer时初始化的
       t->sorted_vocab[i].str = t->vocab[i];
@@ -128,9 +126,7 @@ void encode(Tokenizer *t, char *text, int8_t bos, int8_t eos, int *tokens,
   // 这里完成后是 BOS ' '
   if (text[0] != '\0') {
     int dummy_prefix = str_lookup(" ", t->sorted_vocab, t->vocab_size);
-    if (dummy_prefix != -1) {
-      tokens[(*n_tokens)++] = dummy_prefix;
-    }
+    tokens[(*n_tokens)++] = dummy_prefix;
   }
 
   // 遍历输入字符串的每个字节，检查是否是 UTF-8 编码的字符
@@ -143,6 +139,10 @@ void encode(Tokenizer *t, char *text, int8_t bos, int8_t eos, int *tokens,
 
     str_buffer[str_len++] = *c; // 添加当前字符到缓冲区
     str_buffer[str_len] = '\0'; // 确保字符串以 null 结尾
+
+    if ((*(c+1) & 0xC0) == 0x80 && str_len < 4) {
+        continue;
+    }
 
     // 在词汇表中查找当前缓冲区的完整字符
     int id = str_lookup(str_buffer, t->sorted_vocab, t->vocab_size);
@@ -199,4 +199,23 @@ void encode(Tokenizer *t, char *text, int8_t bos, int8_t eos, int *tokens,
 
   // 释放临时字符串缓冲区
   free(str_buffer);
+}
+
+char *decode(Tokenizer *t, int prev_token, int token) {
+
+  char *piece = t->vocab[token];
+
+  // BOS + 空格后面，说明正在解码句子的第一个词
+  if (prev_token == 1 && piece[0] == ' ')
+    piece++;
+
+  // 处理那些不代表普通文本，而是代表单个原始字节的特殊词元
+  // careful, some tokens designate raw bytes, and look like e.g. '<0x01>'
+  // parse this and convert and return the actual byte
+  unsigned char byte_val;
+  if (sscanf(piece, "<0x%02hhX>", &byte_val) == 1) {
+    piece = (char *)t->byte_pieces + byte_val * 2;
+  }
+
+  return piece; // 返回 token 对应的字符串
 }

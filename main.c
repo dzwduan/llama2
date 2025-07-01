@@ -33,7 +33,7 @@ int main(int argc, char *argv[]) {
   if (strcmp(mode, "generate") == 0) {
     generate(&transformer, &tokenizer, &sampler, prompt, steps);
   } else if (strcmp(mode, "chat") == 0) {
-    chat(&transformer, &tokenizer, &sampler, prompt, system_prompt, steps);
+    //chat(&transformer, &tokenizer, &sampler, prompt, system_prompt, steps);
   } else {
     fprintf(stderr, "unknown mode: %s\n", mode);
     error_usage();

@@ -16,12 +16,12 @@ unsigned int random_u32(unsigned long long *state) ;
 float random_f32(unsigned long long *state) ;
 long time_in_ms() ;
 
+void read_stdin(const char* guide, char* buffer, size_t bufsize);
 
+void safe_printf(char *piece);
 
 void generate(Transformer *transformer, Tokenizer *tokenizer, Sampler *sampler, const char *prompt, int steps) ;
-
-
-void read_stdin(const char* guide, char* buffer, size_t bufsize) ;
+ 
 
 // chat loop
 // I manually inspected the tokens for a few chat conversations compared to
