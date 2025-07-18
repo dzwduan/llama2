@@ -28,8 +28,8 @@ void generate(Transformer *transformer, Tokenizer *tokenizer, Sampler *sampler, 
 // python reference and that seemed ok, but this was not thoroughly tested and
 // is not safely implemented, it's more a proof of concept atm.
 
-void chat(Transformer *transformer, Tokenizer *tokenizer, Sampler *sampler,
-          const char *cli_user_prompt, const char *cli_system_prompt, int steps);
+// void chat(Transformer *transformer, Tokenizer *tokenizer, Sampler *sampler,
+//           const char *cli_user_prompt, const char *cli_system_prompt, int steps);
 
 
 void error_usage() ;

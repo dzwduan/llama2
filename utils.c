@@ -33,7 +33,7 @@ void parse_args(int argc, char *argv[], Llama2Config *config) {
         else if (argv[i][1] == 'n') { config->steps = atoi(argv[i + 1]); }
         else if (argv[i][1] == 'i') { config->prompt = argv[i + 1]; }
         else if (argv[i][1] == 'z') { config->tokenizer_path = argv[i + 1]; }
-        else if (argv[i][1] == 'm') { config->mode = argv[i + 1]; }
+        // else if (argv[i][1] == 'm') { config->mode = argv[i + 1]; }
         else if (argv[i][1] == 'y') { config->system_prompt = argv[i + 1]; }
         else { error_usage(); }
     }

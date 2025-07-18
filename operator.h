@@ -4,7 +4,7 @@
 #include "types.h"
 
 
-void rmsnorm(float* o, float* x, float* weight, int size) ;
+void rmsnorm(float* o, float* x, float* weight, int size, float epsilon) ;
 
 void softmax(float* x, int size) ;
 

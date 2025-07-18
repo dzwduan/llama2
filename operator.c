@@ -5,6 +5,13 @@
 #include "config.h"
 
 
+void resdual_add(float *a, float *b, int size) {
+    for (int i = 0; i < size; i++) {
+        a[i] += b[i];
+    }
+}
+
+
 // 核心是gemv , gemv优化可以设计TMA，使用异步内存拷贝实现同时计算和数据加载，从而隐藏数据延迟
 void matmul(float* xout, QuantizedTensor *x, QuantizedTensor *w, int n, int d) {
     // W (d,n) @ x (n,) -> xout (d,)
@@ -35,7 +42,6 @@ void matmul(float* xout, QuantizedTensor *x, QuantizedTensor *w, int n, int d) {
 
         xout[i] = val;
     }
-
 }
 
 
@@ -48,7 +54,7 @@ y = x / sqrt(mean(x^2) + epsilon)
 output = g * y
 */
 
-void rmsnorm(float* o, float* x, float* weight, int size) {
+void rmsnorm(float* o, float* x, float* weight, int size, float epsilon) {
     float ss = 0.0f;
     // 计算平方和
     for (int j = 0; j < size; j++) {
@@ -58,7 +64,7 @@ void rmsnorm(float* o, float* x, float* weight, int size) {
     // 计算均值
     ss /= size;
     // 加上一个小的常数以避免除零错误
-    ss += 1e-5f; 
+    ss += epsilon; 
     // 计算标准差的倒数, 预先计算倒数，这样后续的除法就可以变成更高效的乘法
     ss = 1.0f / sqrtf(ss); 
 
@@ -242,3 +248,5 @@ void online_softmax_with_topk(const float* logits, int V, int K, ProbIndex* resu
     free(u);
     free(p);
 }
+
+

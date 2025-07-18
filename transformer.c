@@ -10,6 +10,7 @@
 #include "transformer.h"
 #include "operator.h"
 #include "config.h"
+#include "tokenizer.h"
 
 
 // 预先分配 RunState 的内存空间
@@ -290,7 +291,7 @@ float* forward(Transformer* t, int token_idx, int pos) {
 
     // attention rmsnorm
     // rms_att_weight 大小是 n_layers * dim , 所以遍历的每一层起点是 rms_att_weight + l * dim
-    rmsnorm(s->xb, x, w->rms_att_weight + l * dim, dim);
+    rmsnorm(s->xb, x, w->rms_att_weight + l * dim, dim, 1e-5);
 
     // qkv matmul
     int8_quantize(&s->xq, s->xb, dim);
@@ -446,4 +447,76 @@ float* forward(Transformer* t, int token_idx, int pos) {
     matmul(s->logits, &s->xq, w->wcls, dim, p->vocab_size);
 
     return s->logits;
+}
+
+
+
+/**
+ * @brief 使用批处理加速处理输入的 prompt，填充 KV 缓存。
+ * @param pos 指向当前处理位置的指针，函数会更新它。
+ * @param transformer 指向 Transformer 对象的指针，包含权重和状态。
+ * @param prompt_tokens 输入的 prompt token 数组。
+ * @param num_prompt_tokens prompt token 的总数。
+ * @param tokenizer 指向 Tokenizer 对象的指针。
+ * @param print_tokens 是否打印正在处理的 token。
+ * @param BATCH_SIZE  此函数要处理的批次大小 (对应 Rust 版本中的 'A')。
+ * @note 此函数依赖一个假设存在的 `transformer_forward_batch` 函数，
+ * 该函数可以一次性处理一批 token。这是对标准 llama2.c 的一个扩展。
+ */
+void prefill_batch(int* pos,
+                   Transformer* transformer,
+                   int* prompt_tokens,
+                   int num_prompt_tokens,
+                  //  Tokenizer* tokenizer,
+                  //  int print_tokens,
+                  RunState *s,
+                  TransformerWeights *w,
+                  Config *p,
+                  const int BATCH_SIZE) {
+
+    // 只要剩余的 token 数量足够组成一个完整的批次，就继续循环
+    while (*pos + BATCH_SIZE < num_prompt_tokens) {
+        
+        // 为当前批次准备 token 和 position 数组
+        // C99+ 支持变长数组 (VLA)，非常适合此场景
+        int tokens[BATCH_SIZE];
+        int positions[BATCH_SIZE];
+
+        // --- 阶段1: 准备和打包一个批次的数据 ---
+        for (int i = 0; i < BATCH_SIZE; i++) {
+            // 获取当前位置的输入 token。对于位置 0，它是特殊的 BOS token (值为 1)。
+            // 否则，它是 prompt 中的上一个 token。
+            int input_token = (*pos == 0) ? 1 : prompt_tokens[*pos - 1];
+
+            positions[i] = *pos;
+            tokens[i] = input_token;
+
+            // 如果需要，打印当前正在“生成”的 token (即 prompt 中的下一个 token)
+            // if (print_tokens) {
+            //     // bpe_decode 用于获取 token 的字符串表示
+            //     char* token_str = bpe_decode(tokenizer, input_token, prompt_tokens[*pos]);
+            //     printf("%s", token_str);
+            //     fflush(stdout); // 确保立即输出
+            // }
+
+            // 更新全局位置
+            (*pos)++;
+        }
+
+        // --- 阶段2: 一次性处理整个批次 ---
+        // 调用一个假设存在的、支持批处理的 transformer 函数。
+        // 这个函数会计算并更新 transformer->state 中的 KV 缓存。
+        // 我们不需要它的 logits 输出，所以可以传 NULL。
+        // transformer_forward_batch(transformer, tokens, positions, BATCH_SIZE);
+        transformer_batched(tokens, positions, s, w, p, BATCH_SIZE);
+    }
+}
+
+
+
+void transformer_batched(const int * tokens, const int * positions, RunState * s, TransformerWeights *w, Config * p, int B) {
+
+  int dim = p->dim;
+  
+  float x[B][p->dim];
 }

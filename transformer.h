@@ -33,4 +33,7 @@ void free_transformer(Transformer *t);
 
 float *forward(Transformer *transformer, int token, int pos);
 
+
+void transformer_batched(const int * tokens, const int * positions, RunState * s, TransformerWeights *w, int BATCH_SIZE) ;
+
 #endif // __TRANSFORMER_H__

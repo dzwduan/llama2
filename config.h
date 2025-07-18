@@ -13,7 +13,7 @@ typedef struct {
     int steps;
     const char *prompt;
     unsigned long long rng_seed;
-    const char *mode;
+    // const char *mode;
     const char *system_prompt;
 } Llama2Config;
 
